@@ -463,6 +463,9 @@ func DefaultBaseappOptions(appOpts types.AppOptions) []func(*baseapp.BaseApp) {
 	if chainID == "" {
 		// read the chainID from home directory (either from comet or genesis).
 		dbBackend := cast.ToString(appOpts.Get("db_backend"))
+		if dbBackend == "" {
+			dbBackend = cast.ToString(appOpts.Get("app-db-backend"))
+		}
 		chainId, err := readChainIdFromHome(homeDir, dbBackend)
 		if err != nil {
 			panic(err)
