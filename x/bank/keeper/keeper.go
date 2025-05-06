@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"cosmossdk.io/core/address"
 	"cosmossdk.io/core/store"
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/log"
@@ -455,6 +456,11 @@ func (k BaseKeeper) trackUndelegation(ctx context.Context, addr sdk.AccAddress, 
 	}
 
 	return nil
+}
+
+// AddressCodec returns the address codec used by the account keeper
+func (k BaseKeeper) AddressCodec() address.Codec {
+	return k.ak.AddressCodec()
 }
 
 // IterateTotalSupply iterates over the total supply calling the given cb (callback) function
