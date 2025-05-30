@@ -109,8 +109,8 @@ func (k msgServer) MultiSend(goCtx context.Context, msg *types.MsgMultiSend) (*t
 	}
 
 	for _, out := range msg.Outputs {
-		if base, ok := k.Keeper.(BaseKeeper); ok {
-			accAddr, err := base.ak.AddressCodec().StringToBytes(out.Address)
+		if base, ok := k.Keeper.(HasAddressCodec); ok {
+			accAddr, err := base.AddressCodec().StringToBytes(out.Address)
 			if err != nil {
 				return nil, err
 			}
