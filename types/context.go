@@ -41,7 +41,12 @@ type Context struct {
 	priority             int64 // The tx priority, only relevant in CheckTx
 	kvGasConfig          storetypes.GasConfig
 	transientKVGasConfig storetypes.GasConfig
+
+	lastErrApplyEvmMsg *evmErrSlot
+	isEvmTx            bool
 }
+
+type evmErrSlot struct{ evmErr error }
 
 // Proposed rename, not done to avoid API breakage
 type Request = Context
@@ -110,6 +115,7 @@ func NewContext(ms MultiStore, header tmproto.Header, isCheckTx bool, logger log
 		eventManager:         NewEventManager(),
 		kvGasConfig:          storetypes.KVGasConfig(),
 		transientKVGasConfig: storetypes.TransientGasConfig(),
+		lastErrApplyEvmMsg:   &evmErrSlot{},
 	}
 }
 
