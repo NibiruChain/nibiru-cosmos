@@ -33,7 +33,7 @@ func GetQueryCmd() *cobra.Command {
 		GetBalancesCmd(),
 		GetSpendableBalancesCmd(),
 		GetCmdQueryTotalSupply(),
-		GetCmdDenomsMetadata(),
+		GetCmdDenom(),
 		GetCmdQuerySendEnabled(),
 	)
 
@@ -169,38 +169,36 @@ func GetSpendableBalancesCmd() *cobra.Command {
 	return cmd
 }
 
-// GetCmdDenomsMetadata defines the cobra command to query client denomination metadata.
-func GetCmdDenomsMetadata() *cobra.Command {
+// GetCmdDenom defines the cobra command to query client denomination metadata.
+func GetCmdDenom() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "denom-metadata",
+		Use:   "denom [denom]",
 		Short: "Query the client metadata for coin denominations",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Query the client metadata for all the registered coin denominations
+			fmt.Sprintf(`Query the client metadata for registered coin denominations
 
 Example:
-  To query for the client metadata of all coin denominations use:
-  $ %s query %s denom-metadata
+  To query for the client metadata of a specific coin denomination use:
+  $ %s query %s denom [denom]
 
-To query for the client metadata of a specific coin denomination use:
-  $ %s query %s denom-metadata --denom=[denom]
+  To query for the client metadata of all coin denominations use:
+  $ %s query %s denom all
 `,
 				version.AppName, types.ModuleName, version.AppName, types.ModuleName,
 			),
 		),
-		RunE: func(cmd *cobra.Command, _ []string) error {
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			denom, err := cmd.Flags().GetString(FlagDenom)
-			if err != nil {
-				return err
-			}
+			denom := args[0]
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			if denom == "" {
+			if denom == "all" {
 				res, err := queryClient.DenomsMetadata(cmd.Context(), &types.QueryDenomsMetadataRequest{})
 				if err != nil {
 					return err
@@ -218,9 +216,7 @@ To query for the client metadata of a specific coin denomination use:
 		},
 	}
 
-	cmd.Flags().String(FlagDenom, "", "The specific denomination to query client metadata for")
 	flags.AddQueryFlagsToCmd(cmd)
-
 	return cmd
 }
 
