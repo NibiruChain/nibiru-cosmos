@@ -198,8 +198,13 @@ Example:
 
 			queryClient := types.NewQueryClient(clientCtx)
 
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
 			if denom == "all" {
-				res, err := queryClient.DenomsMetadata(cmd.Context(), &types.QueryDenomsMetadataRequest{})
+				res, err := queryClient.DenomsMetadata(cmd.Context(), &types.QueryDenomsMetadataRequest{Pagination: pageReq})
 				if err != nil {
 					return err
 				}
@@ -217,6 +222,7 @@ Example:
 	}
 
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "denom")
 	return cmd
 }
 
