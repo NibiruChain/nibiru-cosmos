@@ -65,7 +65,12 @@ type Context struct {
 	streamingManager     storetypes.StreamingManager
 	cometInfo            comet.BlockInfo
 	headerInfo           header.Info
+
+	lastErrApplyEvmMsg *evmErrSlot
+	isEvmTx            bool
 }
+
+type evmErrSlot struct{ evmErr error }
 
 // Proposed rename, not done to avoid API breakage
 type Request = Context
@@ -140,6 +145,7 @@ func NewContext(ms storetypes.MultiStore, header cmtproto.Header, isCheckTx bool
 		eventManager:         NewEventManager(),
 		kvGasConfig:          storetypes.KVGasConfig(),
 		transientKVGasConfig: storetypes.TransientGasConfig(),
+		lastErrApplyEvmMsg:   &evmErrSlot{},
 	}
 }
 
