@@ -173,16 +173,16 @@ func GetSpendableBalancesCmd() *cobra.Command {
 func GetCmdDenom() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "denom [denom]",
-		Short: "Query the client metadata for coin denominations",
+		Short: "Query the metadata one or more bank coins",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Query the client metadata for registered coin denominations
+			fmt.Sprintf(`Query registered bank coin metadata
 
 Example:
   To query for the client metadata of a specific coin denomination use:
-  $ %s query %s denom [denom]
+  %s query %s denom [denom]
 
   To query for the client metadata of all coin denominations use:
-  $ %s query %s denom all
+  %s query %s denom all
 `,
 				version.AppName, types.ModuleName, version.AppName, types.ModuleName,
 			),
