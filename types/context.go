@@ -42,8 +42,14 @@ type Context struct {
 	kvGasConfig          storetypes.GasConfig
 	transientKVGasConfig storetypes.GasConfig
 
+	// Holds a reference to the latest non-nil error resulting from apply
+	// EVM, persisting through panics and nested "revert" calls. This
+	// facilitates the propagation of low-level VM errors.
 	lastErrApplyEvmMsg *evmErrSlot
-	isEvmTx            bool
+	// True if the current execution context is an EVM transaction
+	isEvmTx bool
+	// EvmTxHash returns the tx hash of the current Ethereum transaction.
+	evmTxHash [32]byte
 }
 
 type evmErrSlot struct{ evmErr error }
@@ -116,6 +122,7 @@ func NewContext(ms MultiStore, header tmproto.Header, isCheckTx bool, logger log
 		kvGasConfig:          storetypes.KVGasConfig(),
 		transientKVGasConfig: storetypes.TransientGasConfig(),
 		lastErrApplyEvmMsg:   &evmErrSlot{},
+		evmTxHash:            [32]byte{},
 	}
 }
 
