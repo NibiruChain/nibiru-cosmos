@@ -3,6 +3,7 @@ package types
 import (
 	"bytes"
 	"encoding/json"
+	fmt "fmt"
 	"sort"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -88,4 +89,20 @@ func (GenesisBalancesIterator) IterateGenesisBalances(
 			break
 		}
 	}
+}
+
+const weiPerUnibi uint64 = 1_000_000_000_000
+
+func (wb WeiBalance) Validate() error {
+	if wb.AddrBech32 == "" {
+		return fmt.Errorf("error in WeiBalance: empty address")
+	}
+	if _, err := sdk.AccAddressFromBech32(wb.AddrBech32); err != nil {
+		return fmt.Errorf("error in WeiBalance: invalid address %q: %w", wb.AddrBech32, err)
+	}
+	// Bounds: [0, 10^12)
+	if wb.WeiStoreBal >= weiPerUnibi {
+		return fmt.Errorf("error in WeiBalance: remainder out of range [0,10^12): %d", wb.WeiStoreBal)
+	}
+	return nil
 }

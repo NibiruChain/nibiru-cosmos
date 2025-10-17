@@ -23,6 +23,7 @@ func (gs GenesisState) Validate() error {
 	seenSendEnabled := make(map[string]bool)
 	seenBalances := make(map[string]bool)
 	seenMetadatas := make(map[string]bool)
+	seenWei := make(map[string]bool)
 
 	totalSupply := sdk.Coins{}
 
@@ -48,6 +49,16 @@ func (gs GenesisState) Validate() error {
 		seenBalances[balance.Address] = true
 
 		totalSupply = totalSupply.Add(balance.Coins...)
+	}
+
+	for _, wb := range gs.WeiBalances {
+		if seenWei[wb.AddrBech32] {
+			return fmt.Errorf("duplicate wei balance for address %s", wb.AddrBech32)
+		}
+		if err := wb.Validate(); err != nil {
+			return err
+		}
+		seenWei[wb.AddrBech32] = true
 	}
 
 	for _, metadata := range gs.DenomMetadata {
@@ -85,6 +96,7 @@ func NewGenesisState(params Params, balances []Balance, supply sdk.Coins, denomM
 		Supply:        supply,
 		DenomMetadata: denomMetaData,
 		SendEnabled:   sendEnabled,
+		WeiBalances:   []WeiBalance{},
 	}
 	rv.MigrateSendEnabled()
 	return rv
@@ -92,7 +104,13 @@ func NewGenesisState(params Params, balances []Balance, supply sdk.Coins, denomM
 
 // DefaultGenesisState returns a default bank module genesis state.
 func DefaultGenesisState() *GenesisState {
-	return NewGenesisState(DefaultParams(), []Balance{}, sdk.Coins{}, []Metadata{}, []SendEnabled{})
+	return NewGenesisState(
+		DefaultParams(),
+		[]Balance{},
+		sdk.Coins{},
+		[]Metadata{},
+		[]SendEnabled{},
+	)
 }
 
 // GetGenesisStateFromAppState returns x/bank GenesisState given raw application
