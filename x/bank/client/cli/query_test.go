@@ -204,8 +204,8 @@ func (s *CLITestSuite) TestGetSpendableBalancesCmd() {
 	}
 }
 
-func (s *CLITestSuite) TestGetCmdDenomsMetadata() {
-	cmd := cli.GetCmdDenomsMetadata()
+func (s *CLITestSuite) TestGetCmdDenom() {
+	cmd := cli.GetCmdDenom()
 	cmd.SetOutput(io.Discard)
 
 	testCases := []struct {
@@ -216,7 +216,7 @@ func (s *CLITestSuite) TestGetCmdDenomsMetadata() {
 		expectErr    bool
 	}{
 		{
-			"valid query",
+			"valid query for all denoms",
 			func() client.Context {
 				bz, _ := s.encCfg.Codec.Marshal(&types.QueryDenomsMetadataResponse{})
 				c := clitestutil.NewMockTendermintRPC(abci.ResponseQuery{
@@ -225,6 +225,7 @@ func (s *CLITestSuite) TestGetCmdDenomsMetadata() {
 				return s.baseCtx.WithClient(c)
 			},
 			[]string{
+				"all",
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			&types.QueryDenomsMetadataResponse{},
@@ -240,7 +241,7 @@ func (s *CLITestSuite) TestGetCmdDenomsMetadata() {
 				return s.baseCtx.WithClient(c)
 			},
 			[]string{
-				fmt.Sprintf("--%s=photon", cli.FlagDenom),
+				"photon",
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			&types.QueryDenomMetadataResponse{},
@@ -255,8 +256,20 @@ func (s *CLITestSuite) TestGetCmdDenomsMetadata() {
 				return s.baseCtx.WithClient(c)
 			},
 			[]string{
-				fmt.Sprintf("--%s=foo", cli.FlagDenom),
+				"foo",
 			},
+			nil,
+			true,
+		},
+		{
+			"invalid query without denom",
+			func() client.Context {
+				c := clitestutil.NewMockTendermintRPC(abci.ResponseQuery{
+					Code: 1,
+				})
+				return s.baseCtx.WithClient(c)
+			},
+			[]string{},
 			nil,
 			true,
 		},
